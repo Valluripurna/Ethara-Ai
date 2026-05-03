@@ -1,0 +1,14 @@
+# Render Blueprint for Ethara Frontend
+# Note: For production, deploy to Vercel instead of Render
+services:
+  - type: web
+    name: ethara-frontend
+    runtime: node
+    region: oregon
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /
+    envVars:
+      - key: NEXT_PUBLIC_API_URL
+        value: https://ethara-backend.onrender.com
