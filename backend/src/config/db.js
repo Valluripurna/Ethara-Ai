@@ -5,6 +5,31 @@ const initSqlJs = require('sql.js');
 let db;
 let dbPath;
 
+const isWritableDirectory = (dirPath) => {
+  try {
+    fs.mkdirSync(dirPath, { recursive: true });
+    fs.accessSync(dirPath, fs.constants.W_OK);
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+const resolveDbPath = () => {
+  const requestedPath = process.env.DB_PATH || path.join(__dirname, '../../ethara.db');
+  const requestedDir = path.dirname(requestedPath);
+
+  if (isWritableDirectory(requestedDir)) {
+    return requestedPath;
+  }
+
+  const fallbackPath = path.join('/tmp', path.basename(requestedPath) || 'ethara.db');
+  console.warn(
+    `DB_PATH directory is not writable (${requestedDir}). Falling back to ${fallbackPath}.`
+  );
+  return fallbackPath;
+};
+
 const saveDatabase = () => {
   if (!db || !dbPath) {
     return;
@@ -45,7 +70,7 @@ const connectDB = async () => {
       locateFile: (file) => require.resolve(`sql.js/dist/${file}`)
     });
 
-    dbPath = process.env.DB_PATH || path.join(__dirname, '../../ethara.db');
+    dbPath = resolveDbPath();
 
     if (fs.existsSync(dbPath)) {
       const fileBuffer = fs.readFileSync(dbPath);
