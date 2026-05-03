@@ -27,19 +27,19 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50">
+    <div className="min-h-screen bg-slate-50 text-slate-900">
       {/* Navigation */}
-      <nav className="fixed top-0 w-full bg-white bg-opacity-95 backdrop-blur-md border-b border-gray-100 z-50 shadow-soft">
-        <div className="container-custom flex justify-between items-center h-16">
-          <div className="text-2xl font-bold gradient-primary bg-clip-text text-transparent">
+      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur">
+        <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8">
+          <div className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
             Ethara
           </div>
-          <div className="flex gap-4">
+          <div className="flex items-center gap-2 sm:gap-3">
             {isAuthenticated ? (
               <>
                 <button
                   onClick={() => router.push('/dashboard')}
-                  className="button-primary"
+                  className="button-primary px-4 py-2 text-sm sm:text-base"
                 >
                   Dashboard
                 </button>
@@ -49,17 +49,17 @@ export default function Home() {
                     setIsAuthenticated(false);
                     router.push('/');
                   }}
-                  className="button-secondary"
+                  className="button-secondary px-4 py-2 text-sm sm:text-base"
                 >
                   Logout
                 </button>
               </>
             ) : (
               <>
-                <Link href="/login" className="button-secondary">
+                <Link href="/login" className="button-secondary px-4 py-2 text-sm sm:text-base">
                   Login
                 </Link>
-                <Link href="/register" className="button-primary">
+                <Link href="/register" className="button-primary px-4 py-2 text-sm sm:text-base">
                   Get Started
                 </Link>
               </>
@@ -69,38 +69,39 @@ export default function Home() {
       </nav>
 
       {/* Hero Section */}
-      <section className="pt-32 pb-20 px-4">
-        <div className="container-custom max-w-4xl mx-auto text-center animate-slideInUp">
-          <div className="inline-block mb-6 px-4 py-2 bg-indigo-100 rounded-full">
-            <span className="text-indigo-700 font-semibold text-sm">
+      <section className="relative overflow-hidden px-4 pb-14 pt-28 sm:pt-32 md:pt-36">
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-64 bg-gradient-to-b from-indigo-100/70 to-transparent" />
+        <div className="relative mx-auto max-w-5xl text-center animate-slideInUp">
+          <div className="mb-6 inline-flex items-center rounded-full border border-indigo-200 bg-white px-4 py-2 shadow-sm">
+            <span className="text-xs font-semibold uppercase tracking-wide text-indigo-700 sm:text-sm">
               🚀 Professional Project Management
             </span>
           </div>
 
-          <h1 className="text-5xl md:text-6xl font-bold mb-6 text-gray-900 leading-tight">
+          <h1 className="mx-auto mb-5 max-w-4xl text-4xl font-bold leading-tight text-slate-900 sm:text-5xl lg:text-6xl">
             Manage Projects Like a
             <span className="gradient-primary bg-clip-text text-transparent"> Pro</span>
           </h1>
 
-          <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+          <p className="mx-auto mb-8 max-w-2xl text-base text-slate-600 sm:text-lg md:text-xl">
             Ethara helps teams collaborate on projects effortlessly. Organize tasks, track progress, and achieve goals
             together.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
             {isAuthenticated ? (
               <button
                 onClick={() => router.push('/dashboard')}
-                className="button-primary text-lg py-3 px-8"
+                className="button-primary w-full px-7 py-3 text-base sm:w-auto sm:text-lg"
               >
                 Go to Dashboard
               </button>
             ) : (
               <>
-                <Link href="/register" className="button-primary text-lg py-3 px-8">
+                <Link href="/register" className="button-primary w-full px-7 py-3 text-base sm:w-auto sm:text-lg">
                   Start Free Trial
                 </Link>
-                <Link href="/login" className="button-secondary text-lg py-3 px-8">
+                <Link href="/login" className="button-secondary w-full px-7 py-3 text-base sm:w-auto sm:text-lg">
                   Sign In
                 </Link>
               </>
@@ -110,18 +111,18 @@ export default function Home() {
       </section>
 
       {/* Features Section */}
-      <section className="py-20 px-4 bg-white">
-        <div className="container-custom">
+      <section className="bg-white px-4 py-14 sm:py-20">
+        <div className="mx-auto max-w-6xl">
           <div className="text-center mb-16 animate-slideInUp">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="mb-3 text-3xl font-bold text-slate-900 sm:text-4xl">
               Powerful Features for Your Team
             </h2>
-            <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+            <p className="mx-auto max-w-2xl text-base text-slate-600 sm:text-lg">
               Everything you need to manage projects efficiently
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {[
               {
                 icon: '📋',
@@ -156,13 +157,13 @@ export default function Home() {
             ].map((feature, idx) => (
               <div
                 key={idx}
-                className="p-8 rounded-lg bg-gradient-to-br from-slate-50 to-slate-100 hover:shadow-medium transition-all duration-300 border border-gray-200 hover:border-indigo-300"
+                className="rounded-2xl border border-slate-200 bg-gradient-to-br from-slate-50 to-slate-100 p-6 transition-all duration-300 hover:-translate-y-1 hover:border-indigo-300 hover:shadow-medium"
               >
-                <div className="text-4xl mb-4">{feature.icon}</div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                <div className="mb-3 text-3xl">{feature.icon}</div>
+                <h3 className="mb-2 text-2xl font-semibold text-slate-900 sm:text-xl">
                   {feature.title}
                 </h3>
-                <p className="text-gray-600">{feature.description}</p>
+                <p className="text-base leading-relaxed text-slate-600">{feature.description}</p>
               </div>
             ))}
           </div>
@@ -170,14 +171,14 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 px-4 gradient-primary">
-        <div className="container-custom max-w-3xl mx-auto text-center text-white animate-slideInUp">
-          <h2 className="text-4xl font-bold mb-4">Ready to Transform Your Workflow?</h2>
-          <p className="text-lg mb-8 text-indigo-100">
+      <section className="gradient-primary px-4 py-14 sm:py-16">
+        <div className="mx-auto max-w-3xl text-center text-white animate-slideInUp">
+          <h2 className="mb-3 text-3xl font-bold sm:text-5xl">Ready to Transform Your Workflow?</h2>
+          <p className="mb-7 text-base text-indigo-100 sm:text-xl">
             Join thousands of teams already using Ethara to manage projects effectively.
           </p>
           {!isAuthenticated && (
-            <Link href="/register" className="inline-block px-8 py-3 bg-white text-indigo-600 font-semibold rounded-lg hover:bg-indigo-50 transition-all duration-300">
+            <Link href="/register" className="inline-block rounded-lg bg-white px-8 py-3 font-semibold text-indigo-600 transition-all duration-300 hover:bg-indigo-50">
               Get Started Now
             </Link>
           )}
@@ -185,10 +186,10 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-gray-400 py-12 px-4">
-        <div className="container-custom text-center">
+      <footer className="bg-slate-950 px-4 py-10 text-slate-300">
+        <div className="mx-auto max-w-6xl text-center">
           <p className="mb-2">© 2026 Ethara. All rights reserved.</p>
-          <p className="text-sm">Built with ❤️ for teams that want to get things done.</p>
+          <p className="text-sm text-slate-400">Built with ❤️ for teams that want to get things done.</p>
         </div>
       </footer>
     </div>
