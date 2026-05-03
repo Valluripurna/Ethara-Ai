@@ -39,7 +39,7 @@ A modern, lightweight project and task management application built with Next.js
 ### Backend
 - **Runtime**: Node.js
 - **Framework**: Express.js
-- **Database**: SQLite (lightweight, no setup required)
+- **Database**: MongoDB Atlas
 - **Authentication**: JWT (JSON Web Tokens)
 - **Validation**: Zod
 - **Security**: bcryptjs, rate limiting
@@ -162,9 +162,8 @@ See [Deployment Guide](./DEPLOYMENT_GUIDE.md) for detailed instructions.
 ## 🛠️ Development
 
 ### Database
-- SQLite automatically creates and initializes on first run
-- Tables: users, projects, tasks
-- Persistent storage on production (Render)
+- MongoDB Atlas stores users, projects, and tasks
+- No local database file or Render disk is required
 
 ### Project Structure
 ```
@@ -215,7 +214,7 @@ For issues, questions, or suggestions:
 
 - [Next.js Documentation](https://nextjs.org/docs)
 - [Express.js Guide](https://expressjs.com/)
-- [SQLite Documentation](https://www.sqlite.org/docs.html)
+- [MongoDB Documentation](https://www.mongodb.com/docs/)
 - [Tailwind CSS](https://tailwindcss.com/docs)
 - [JWT.io](https://jwt.io/)
 

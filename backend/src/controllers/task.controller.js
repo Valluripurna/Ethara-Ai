@@ -5,7 +5,7 @@ const Project = require('../models/project.model');
 const taskSchema = z.object({
   title: z.string().min(1, 'Task title is required'),
   description: z.string().optional(),
-  dueDate: z.string().optional().transform((val) => (val ? new Date(val).toISOString() : undefined)),
+  dueDate: z.string().optional().transform((val) => (val ? new Date(val) : undefined)),
   priority: z.enum(['low', 'medium', 'high']).optional(),
   status: z.enum(['todo', 'in-progress', 'completed']).optional(),
   assignedTo: z
@@ -13,40 +13,32 @@ const taskSchema = z.object({
   projectId: z.string().min(1, 'Project ID is required')
 });
 
-exports.getTasks = (req, res, next) => {
+exports.getTasks = async (req, res, next) => {
   try {
     const { projectId, status, assignedTo } = req.query;
-    let tasks = [];
+    let query = {};
 
-    if (projectId) {
-      tasks = Task.findByProjectId(projectId);
-    } else {
-      if (req.user.role === 'member') {
-        const allProjects = Project.findAll();
-        const memberProjects = allProjects.filter(p => p.members.includes(req.user.id));
-        const projectIds = memberProjects.map(p => p.id);
+    if (projectId) query.projectId = projectId;
+    if (status) query.status = status;
+    if (assignedTo) query.assignedTo = assignedTo;
 
-        tasks = projectIds.flatMap(pId => Task.findByProjectId(pId));
-      } else {
-        const allProjects = Project.findAll();
-        tasks = allProjects.flatMap(p => Task.findByProjectId(p.id));
-      }
-    }
+    if (req.user.role === 'member') {
+      const memberProjects = await Project.find({ members: req.user._id }).select('_id');
+      const projectIds = memberProjects.map((p) => p._id.toString());
 
-    if (status) {
-      tasks = tasks.filter(t => t.status === status);
-    }
-
-    if (assignedTo) {
-      tasks = tasks.filter(t => t.assignedTo === assignedTo);
-    }
-
-    if (req.user.role === 'member' && projectId) {
-      const project = Project.findById(projectId);
-      if (!project.members.includes(req.user.id) && project.createdBy !== req.user.id) {
+      if (projectId && !projectIds.includes(projectId)) {
         return res.status(403).json({ success: false, message: 'Access denied to this project' });
       }
+
+      if (!projectId) {
+        query.projectId = { $in: projectIds };
+      }
     }
+
+    const tasks = await Task.find(query)
+      .populate('assignedTo', 'name email')
+      .populate('projectId', 'name')
+      .sort({ createdAt: -1 });
 
     res.status(200).json({ success: true, count: tasks.length, tasks });
   } catch (error) {
@@ -54,26 +46,30 @@ exports.getTasks = (req, res, next) => {
   }
 };
 
-exports.createTask = (req, res, next) => {
+exports.createTask = async (req, res, next) => {
   try {
     const validatedData = taskSchema.parse(req.body);
 
-    const project = Project.findById(validatedData.projectId);
+    const project = await Project.findById(validatedData.projectId);
     if (!project) {
       return res.status(404).json({ success: false, message: 'Project not found' });
     }
 
-    const task = Task.create(validatedData);
+    const task = await Task.create(validatedData);
 
-    res.status(201).json({ success: true, task });
+    const populatedTask = await Task.findById(task._id)
+      .populate('assignedTo', 'name email')
+      .populate('projectId', 'name');
+
+    res.status(201).json({ success: true, task: populatedTask });
   } catch (error) {
     next(error);
   }
 };
 
-exports.updateTask = (req, res, next) => {
+exports.updateTask = async (req, res, next) => {
   try {
-    const task = Task.findById(req.params.id);
+    const task = await Task.findById(req.params.id);
 
     if (!task) {
       return res.status(404).json({ success: false, message: 'Task not found' });
@@ -85,7 +81,7 @@ exports.updateTask = (req, res, next) => {
     }
 
     if (req.user.role === 'member') {
-      const isAssigned = task.assignedTo === req.user.id;
+      const isAssigned = task.assignedTo?.toString() === req.user._id;
       const allowedFields = ['status'];
       const requestedFields = Object.keys(body);
 
@@ -95,7 +91,13 @@ exports.updateTask = (req, res, next) => {
       }
     }
 
-    const updatedTask = Task.updateById(req.params.id, body);
+    const updatedTask = await Task.findByIdAndUpdate(
+      req.params.id,
+      body,
+      { new: true, runValidators: true }
+    )
+      .populate('assignedTo', 'name email')
+      .populate('projectId', 'name');
 
     res.status(200).json({ success: true, task: updatedTask });
   } catch (error) {
@@ -103,15 +105,13 @@ exports.updateTask = (req, res, next) => {
   }
 };
 
-exports.deleteTask = (req, res, next) => {
+exports.deleteTask = async (req, res, next) => {
   try {
-    const task = Task.findById(req.params.id);
+    const task = await Task.findByIdAndDelete(req.params.id);
 
     if (!task) {
       return res.status(404).json({ success: false, message: 'Task not found' });
     }
-
-    Task.deleteById(req.params.id);
 
     res.status(200).json({ success: true, message: 'Task deleted successfully' });
   } catch (error) {

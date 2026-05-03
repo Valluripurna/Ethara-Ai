@@ -8,18 +8,18 @@ const projectSchema = z.object({
   members: z.array(z.string()).optional()
 });
 
-exports.getProjects = (req, res, next) => {
+exports.getProjects = async (req, res, next) => {
   try {
-    let projects;
+    let query = {};
 
     if (req.user.role === 'member') {
-      const allProjects = Project.findAll();
-      projects = allProjects.filter(p => 
-        p.members.includes(req.user.id)
-      );
-    } else {
-      projects = Project.findAll();
+      query = { members: req.user._id };
     }
+
+    const projects = await Project.find(query)
+      .populate('members', 'name email')
+      .populate('createdBy', 'name email')
+      .sort({ createdAt: -1 });
 
     res.status(200).json({ success: true, count: projects.length, projects });
   } catch (error) {
@@ -27,27 +27,38 @@ exports.getProjects = (req, res, next) => {
   }
 };
 
-exports.createProject = (req, res, next) => {
+exports.createProject = async (req, res, next) => {
   try {
     const validatedData = projectSchema.parse(req.body);
 
-    const project = Project.create({
+    const project = await Project.create({
       name: validatedData.name,
       description: validatedData.description,
-      createdBy: req.user.id
+      members: validatedData.members || [],
+      createdBy: req.user._id
     });
 
-    res.status(201).json({ success: true, project });
+    const populatedProject = await Project.findById(project._id)
+      .populate('members', 'name email')
+      .populate('createdBy', 'name email');
+
+    res.status(201).json({ success: true, project: populatedProject });
   } catch (error) {
     next(error);
   }
 };
 
-exports.updateProject = (req, res, next) => {
+exports.updateProject = async (req, res, next) => {
   try {
     const validatedData = projectSchema.partial().parse(req.body);
 
-    const project = Project.updateById(req.params.id, validatedData);
+    const project = await Project.findByIdAndUpdate(
+      req.params.id,
+      validatedData,
+      { new: true, runValidators: true }
+    )
+      .populate('members', 'name email')
+      .populate('createdBy', 'name email');
 
     if (!project) {
       return res.status(404).json({ success: false, message: 'Project not found' });
@@ -59,19 +70,15 @@ exports.updateProject = (req, res, next) => {
   }
 };
 
-exports.deleteProject = (req, res, next) => {
+exports.deleteProject = async (req, res, next) => {
   try {
-    const project = Project.findById(req.params.id);
+    const project = await Project.findByIdAndDelete(req.params.id);
 
     if (!project) {
       return res.status(404).json({ success: false, message: 'Project not found' });
     }
 
-    // Delete all associated tasks
-    const tasks = Task.findByProjectId(req.params.id);
-    tasks.forEach(task => Task.deleteById(task.id));
-
-    Project.deleteById(req.params.id);
+    await Task.deleteMany({ projectId: req.params.id });
 
     res.status(200).json({ success: true, message: 'Project deleted successfully' });
   } catch (error) {
@@ -79,16 +86,20 @@ exports.deleteProject = (req, res, next) => {
   }
 };
 
-exports.getProjectById = (req, res, next) => {
+exports.getProjectById = async (req, res, next) => {
   try {
-    const project = Project.findById(req.params.id);
+    const project = await Project.findById(req.params.id)
+      .populate('members', 'name email')
+      .populate('createdBy', 'name email');
 
     if (!project) {
       return res.status(404).json({ success: false, message: 'Project not found' });
     }
 
-    const isMember = project.members.includes(req.user.id);
-    const isCreator = project.createdBy === req.user.id;
+    const isMember = project.members.some(
+      (m) => m._id.toString() === req.user._id
+    );
+    const isCreator = project.createdBy._id.toString() === req.user._id;
 
     if (req.user.role !== 'admin' && !isMember && !isCreator) {
       return res.status(403).json({ success: false, message: 'Access denied' });

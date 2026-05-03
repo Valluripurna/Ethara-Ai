@@ -17,25 +17,25 @@ const loginSchema = z.object({
 
 const generateToken = (user) => {
   return jwt.sign(
-    { id: user.id, email: user.email, role: user.role, name: user.name },
+    { _id: user._id, email: user.email, role: user.role, name: user.name },
     process.env.JWT_SECRET,
     { expiresIn: '7d' }
   );
 };
 
-exports.register = (req, res, next) => {
+exports.register = async (req, res, next) => {
   try {
     const validatedData = registerSchema.parse(req.body);
 
-    const existingUser = User.findByEmail(validatedData.email);
+    const existingUser = await User.findOne({ email: validatedData.email });
     if (existingUser) {
       return res.status(400).json({ success: false, message: 'User already exists with this email' });
     }
 
-    const salt = bcrypt.genSaltSync(10);
-    const hashedPassword = bcrypt.hashSync(validatedData.password, salt);
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(validatedData.password, salt);
 
-    const user = User.create({
+    const user = await User.create({
       name: validatedData.name,
       email: validatedData.email,
       password: hashedPassword,
@@ -49,7 +49,7 @@ exports.register = (req, res, next) => {
       message: 'User registered successfully',
       token,
       user: {
-        id: user.id,
+        _id: user._id,
         name: user.name,
         email: user.email,
         role: user.role
@@ -60,16 +60,16 @@ exports.register = (req, res, next) => {
   }
 };
 
-exports.login = (req, res, next) => {
+exports.login = async (req, res, next) => {
   try {
     const validatedData = loginSchema.parse(req.body);
 
-    const user = User.findByEmail(validatedData.email);
+    const user = await User.findOne({ email: validatedData.email });
     if (!user) {
       return res.status(401).json({ success: false, message: 'Invalid email or password' });
     }
 
-    const isMatch = bcrypt.compareSync(validatedData.password, user.password);
+    const isMatch = await bcrypt.compare(validatedData.password, user.password);
     if (!isMatch) {
       return res.status(401).json({ success: false, message: 'Invalid email or password' });
     }
@@ -81,7 +81,7 @@ exports.login = (req, res, next) => {
       message: 'Login successful',
       token,
       user: {
-        id: user.id,
+        _id: user._id,
         name: user.name,
         email: user.email,
         role: user.role
@@ -92,27 +92,24 @@ exports.login = (req, res, next) => {
   }
 };
 
-exports.getMe = (req, res, next) => {
+exports.getMe = async (req, res, next) => {
   try {
-    const user = User.findById(req.user.id);
+    const user = await User.findById(req.user._id).select('-password');
     if (!user) {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
-    const { password, ...userWithoutPassword } = user;
-    res.status(200).json({ success: true, user: userWithoutPassword });
+    res.status(200).json({ success: true, user });
   } catch (error) {
     next(error);
   }
 };
 
-exports.getUsers = (req, res, next) => {
+/** List users for admin (e.g. project/task assignment). Excludes passwords. */
+exports.getUsers = async (req, res, next) => {
   try {
-    const users = User.findAll().map(user => ({
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      role: user.role
-    }));
+    const users = await User.find({ role: 'member' })
+      .select('name email role')
+      .sort({ name: 1 });
     res.status(200).json({ success: true, users });
   } catch (error) {
     next(error);

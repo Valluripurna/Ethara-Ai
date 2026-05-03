@@ -1,7 +1,7 @@
 {
   "name": "ethara-backend",
   "version": "1.0.0",
-  "description": "Ethara API — Express & SQLite",
+  "description": "Ethara API — Express & MongoDB",
   "main": "server.js",
   "engines": {
     "node": "20.x"
@@ -17,11 +17,11 @@
     "express": "^4.19.2",
     "express-rate-limit": "^8.4.1",
     "jsonwebtoken": "^9.0.2",
-    "sql.js": "^1.13.0",
-    "uuid": "^9.0.1",
+    "mongoose": "^8.4.1",
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "mongodb-memory-server": "^11.1.0",
     "nodemon": "^3.1.3"
   }
 }

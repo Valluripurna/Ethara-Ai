@@ -1,5 +1,4 @@
 # Render Blueprint — https://render.com/docs/blueprint-spec
-# SQLite-based backend deployment
 services:
   - type: web
     name: ethara-backend
@@ -9,17 +8,12 @@ services:
     buildCommand: npm install
     startCommand: npm start
     healthCheckPath: /api/health
-    persistDisk:
-      name: ethara-db
-      mountPath: /var/data
     envVars:
       - key: NODE_ENV
         value: production
-      - key: DB_PATH
-        value: /var/data/ethara.db
+      - key: MONGO_URI
+        sync: false
       - key: JWT_SECRET
         sync: false
       - key: CLIENT_URL
         sync: false
-      - key: PORT
-        value: 10000
