@@ -52,8 +52,8 @@ export default function DashboardPage() {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-4xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-600 mt-2">Get an overview of your projects and tasks</p>
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900">Dashboard</h1>
+        <p className="text-gray-600 mt-1 sm:mt-2 text-sm sm:text-base">Get an overview of your projects and tasks</p>
       </div>
 
       {/* Stats Grid */}

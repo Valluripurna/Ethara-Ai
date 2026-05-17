@@ -69,14 +69,14 @@ export default function ProjectsPage() {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div>
-          <h1 className="text-4xl font-bold text-gray-900">Projects</h1>
-          <p className="text-gray-600 mt-2">Manage your projects efficiently</p>
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900">Projects</h1>
+          <p className="text-gray-600 mt-1 sm:mt-2 text-sm sm:text-base">Manage your projects efficiently</p>
         </div>
         <button
           onClick={() => setShowCreateForm(!showCreateForm)}
-          className="button-primary"
+          className="button-primary w-full sm:w-auto text-center"
         >
           + New Project
         </button>

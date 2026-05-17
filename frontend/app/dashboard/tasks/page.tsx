@@ -56,8 +56,8 @@ export default function TasksPage() {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-4xl font-bold text-gray-900">My Tasks</h1>
-        <p className="text-gray-600 mt-2">Track and manage your assigned tasks</p>
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900">My Tasks</h1>
+        <p className="text-gray-600 mt-1 sm:mt-2 text-sm sm:text-base">Track and manage your assigned tasks</p>
       </div>
 
       {error && (
@@ -67,7 +67,7 @@ export default function TasksPage() {
       )}
 
       {/* Filters */}
-      <div className="flex gap-4 mb-8">
+      <div className="flex flex-wrap gap-2 sm:gap-4 mb-8">
         {(['all', 'todo', 'in-progress', 'completed'] as const).map((status) => (
           <button
             key={status}
