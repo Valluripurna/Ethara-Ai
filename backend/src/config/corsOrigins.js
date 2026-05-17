@@ -3,7 +3,7 @@
  * http://localhost:3000,https://ethara-frontend.onrender.com
  */
 function getAllowedOrigins() {
-  const raw = process.env.CLIENT_URL || 'http://localhost:3000';
+  const raw = process.env.CLIENT_URL || 'http://localhost:3000,https://ethara-frontend.vercel.app';
   return raw
     .split(',')
     .map((s) => s.trim().replace(/\/$/, ''))

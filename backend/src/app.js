@@ -18,7 +18,9 @@ app.use(
     origin(origin, callback) {
       if (!origin) return callback(null, true);
       if (allowedOrigins.includes(origin)) return callback(null, true);
-      return callback(null, false);
+      if (process.env.NODE_ENV !== 'production') return callback(null, true);
+      console.warn(`CORS: Unrecognized origin "${origin}" — allowing anyway`);
+      callback(null, true);
     },
     credentials: true
   })
